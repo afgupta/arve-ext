@@ -17,6 +17,7 @@ setup(
     python_requires=">=3.10",
     install_requires=["astropy>=6.1.7"    ,
                       "astroquery>=0.4.10",
+                      "barycorrpy==0.4.4" ,
                       "lmfit>=1.3.3"      ,
                       "matplotlib>=3.10.1",
                       "numpy>=2.2.4"      ,
