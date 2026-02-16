@@ -18,6 +18,7 @@ class get_aux_data:
         tell_wave       : np.ndarray            | None = None ,
         tell_flux       : np.ndarray            | None = None ,
         tell_lim        : float                        = 0.99 ,
+        alt_tell_input  : bool                         = False,
         exclude_regions : list[list[float]]     | None = None ,
         ) -> None:
         """Get auxiliary data.
@@ -163,7 +164,31 @@ class get_aux_data:
             "wave": tell_wave,
             "flux": tell_flux
             }
+        elif alt_tell_input == True:
+            
+            tell_wave = self.arve.functions.doppler_shift(wave=tell_wave, v=-vrad_sys)
 
+            # concatenate stellar spectrum
+            tell_wave_1d = np.concatenate(tell_wave)
+            tell_flux_1d = np.concatenate(tell_flux)
+            idx_sort = np.argsort(tell_wave_1d)
+
+            # create DataFrame with flattened telluric spectrum
+            tell = pd.DataFrame()
+            tell["wave"] = tell_wave_1d[idx_sort]
+            tell["flux"] = tell_flux_1d[idx_sort]
+
+            # create dictionary with interpolated telluric spectrum
+            
+            for i in range(self.spec["N_ord"]):
+                if np.sum(~np.isnan(wave_val[i]))>0:
+                    tell_flux[i] = np.array([interp1d(tell_wave[i], tell_flux[i], kind="cubic", bounds_error=False)(wave_val[i])])
+            
+            tell_dict = {
+            "wave": wave_val,
+            "flux": tell_flux
+            }
+            
         # or use provided telluric spectrum (assumed to have the same resolution as the stellar spectrum but not necessarily sampled on the same wavelength grid)
         else:
 
