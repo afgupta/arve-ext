@@ -143,6 +143,15 @@ class compute_vrad_lbl:
             vrad_val_lbl[i] = np.zeros((N_spec,N_line[i],N_bin))*np.nan
             vrad_err_lbl[i] = np.zeros((N_spec,N_line[i],N_bin))*np.nan
         
+        # empty arrays for line part wavelengths and temps
+        wave_start_lbl = np.zeros(N_ord, dtype=object)
+        wave_end_lbl = np.zeros(N_ord, dtype=object)
+        temp_median_lbl = np.zeros(N_ord, dtype=object)
+        for i in range(N_ord):
+            wave_start_lbl[i] = np.zeros((N_spec,N_line[i],N_bin))*np.nan
+            wave_end_lbl[i] = np.zeros((N_spec,N_line[i],N_bin))*np.nan        
+            temp_median_lbl[i] = np.zeros((N_spec,N_line[i],N_bin))*np.nan        
+        
         # mask array for RV values and errors
         vrad_mask_lbl = np.zeros(N_ord, dtype=object)
         for i in range(N_ord):
@@ -175,6 +184,13 @@ class compute_vrad_lbl:
                             obs_wave_val = wave_val[j,idx[j][k,l]]
                             obs_flux_val = flux_val[j,idx[j][k,l]]
                             obs_flux_err = flux_err[j,idx[j][k,l]]
+
+                            # save wavelength
+                            if len(obs_wave_val)>0:
+                                wave_start_lbl[j][i,k,l] = obs_wave_val[0]
+                                wave_end_lbl[j][i,k,l] = obs_wave_val[-1]
+                                temp_median_lbl[j][i,k,l] = np.median(temp[j,idx[j][k,l]])
+                                
 
                             # try to template match
                             try:
@@ -272,6 +288,9 @@ class compute_vrad_lbl:
             "vrad_err_bin" : vrad_err_bin ,
             "vrad_val_ord" : vrad_val_ord ,
             "vrad_err_ord" : vrad_err_ord ,
+            "wave_start_lbl" : wave_start_lbl ,
+            "wave_end_lbl" : wave_end_lbl ,
+            "temp_median_lbl" : temp_median_lbl ,
             "vrad_val_lbl" : vrad_val_lbl ,
             "vrad_err_lbl" : vrad_err_lbl ,
             "vrad_mask_lbl": vrad_mask_lbl,
