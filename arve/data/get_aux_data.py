@@ -63,6 +63,8 @@ class get_aux_data:
         path_aux_spec = path_aux_data+"spectra/"
         path_aux_tell = path_aux_data+"tellurics/"
         path_aux_wave = path_aux_data+"wavelengths/"
+        path_aux_fsr  = path_aux_data+"fsr/"
+
 
         # search file names and spectral types among masks
         files             = sorted(os.listdir(path_aux_mask))
@@ -265,6 +267,17 @@ class get_aux_data:
             else:
                 excl_dict[i] = pd.DataFrame(columns=["wave_l", "wave_u"])
 
+        fsr_dict = {}
+        if self.spec["instrument"]=="neid":
+            neid_fsr=pd.read_csv(path_aux_fsr+"neid_fsr.csv")
+            for i in range(self.spec["N_ord"]):
+                    fsr_dict[i]["wave_l"]=np.array([self.spec["wave_val"][i][neid_fsr.fsr_start[i]]])
+                    fsr_dict[i]["wave_u"]=np.array([self.spec["wave_val"][i][neid_fsr.fsr_end[i]]])
+        else:
+            for i in range(self.spec["N_ord"]):
+                fsr_dict[i] = pd.DataFrame(columns=["wave_l", "wave_u"])
+            
+
         # criterion: lines not within telluric bands
         for i in range(self.spec["N_ord"]):
             band_wave_l = band_dict[i]["wave_l"].values
@@ -281,13 +294,22 @@ class get_aux_data:
             mask_wave_u = mask_dict[i]["wave_u"].values
             mask_dict[i]["crit_excl"] = np.sum([(mask_wave_l>excl_wave_u[j]) | (mask_wave_u<excl_wave_l[j]) for j in range(len(excl_dict[i]))], axis=0) == len(excl_dict[i])
 
+        # criterion: lines within free spectral range
+        for i in range(self.spec["N_ord"]):
+            fsr_wave_l = fsr_dict[i]["wave_l"].values
+            fsr_wave_u = fsr_dict[i]["wave_u"].values
+            mask_wave_l = mask_dict[i]["wave_l"].values
+            mask_wave_u = mask_dict[i]["wave_u"].values
+            mask_dict[i]["crit_fsr"] = np.sum([(mask_wave_l>fsr_wave_l[j]) & (mask_wave_u<fsr_wave_u[j]) for j in range(len(fsr_dict[i]))], axis=0, dtype=bool)
+
         # save
         self.aux_data = {"name": mask_name,
                          "mask": mask_dict,
                          "spec": spec_dict,
                          "tell": tell_dict,
                          "band": band_dict,
-                         "excl": excl_dict
+                         "excl": excl_dict,
+                         "fsr": fsr_dict
                         }
 
         return None

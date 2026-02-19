@@ -17,6 +17,7 @@ class compute_vrad_lbl:
         criteria          : list[str]         | None = None,
         exclude_tellurics : bool                     = True,
         exclude_regions   : bool                     = True,
+        limit_fsr         : bool                     = False,
         ) -> None:
         """Compute radial velocities (RVs) from spectral data using the line-by-line (LBL) method.
 
@@ -36,7 +37,9 @@ class compute_vrad_lbl:
             exclude telluric bands, by default True
         exclude_regions : bool, optional
             exclude wavelength intervals, by default True
-
+        limit_fsr : bool, optional
+            limit calculation to the free spectral range of each order, by default False
+            
         Returns
         -------
         None
@@ -97,6 +100,13 @@ class compute_vrad_lbl:
                 criteria = ["crit_excl"]
             else:
                 criteria.append("crit_excl")
+
+        # limit to free spectral range
+        if exclude_regions:
+            if criteria is None:
+                criteria = ["crit_fsr"]
+            else:
+                criteria.append("crit_fsr")
 
         # lines which satisfy criteria
         idx_crit = np.zeros(N_ord, dtype=object)
