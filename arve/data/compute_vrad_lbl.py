@@ -102,7 +102,7 @@ class compute_vrad_lbl:
                 criteria.append("crit_excl")
 
         # limit to free spectral range
-        if exclude_regions:
+        if limit_fsr:
             if criteria is None:
                 criteria = ["crit_fsr"]
             else:

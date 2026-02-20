@@ -271,8 +271,12 @@ class get_aux_data:
         if self.spec["instrument"]=="neid":
             neid_fsr=pd.read_csv(path_aux_fsr+"neid_fsr.csv")
             for i in range(self.spec["N_ord"]):
-                    fsr_dict[i]["wave_l"]=np.array([self.spec["wave_val"][i][neid_fsr.fsr_start[i]]])
-                    fsr_dict[i]["wave_u"]=np.array([self.spec["wave_val"][i][neid_fsr.fsr_end[i]]])
+                if np.isnan(neid_fsr.fsr_start[i]) or np.isnan(neid_fsr.fsr_end[i]):
+                    fsr_dict[i] = pd.DataFrame(columns=["wave_l", "wave_u"])
+                else:
+                    fsr_dict[i] = pd.DataFrame()
+                    fsr_dict[i]["wave_l"]=np.array([self.spec["wave_val"][i][int(neid_fsr.fsr_start[i])]])
+                    fsr_dict[i]["wave_u"]=np.array([self.spec["wave_val"][i][int(neid_fsr.fsr_end[i])]])
         else:
             for i in range(self.spec["N_ord"]):
                 fsr_dict[i] = pd.DataFrame(columns=["wave_l", "wave_u"])
