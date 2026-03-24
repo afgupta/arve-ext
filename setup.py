@@ -32,5 +32,6 @@ setup(
     package_data={"arve": ["aux_data/masks/*.csv.zip",
                            "aux_data/spectra/*.csv.zip",
                            "aux_data/tellurics/*.csv.zip",
-                           "aux_data/wavelengths/*.csv.zip"]}
+                           "aux_data/wavelengths/*.csv.zip",
+                           "aux_data/fsr/*.csv"]}
 )
